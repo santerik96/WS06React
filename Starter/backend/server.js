@@ -29,7 +29,16 @@ app.use(express.static(publicDir));
 
 app.use('/api/posts', postsRouter);
 
-// 404 handler
+// Tarjoile käännetty React-sovellus
+const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
+app.use(express.static(frontendDist));
+
+// Ohjaa kaikki muut paitsi /api-pyynnöt React-reitittimelle
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(frontendDist, 'index.html'));
+});
+
+// 404 handler (vain /api-reiteille, joita ei löytynyt)
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
@@ -46,11 +55,4 @@ connectToDatabase().then(() => {
     console.log('Mounted routers:');
     console.log('  /api/posts -> routes/posts.js');
   });
-});
-const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
-app.use(express.static(frontendDist));
-
-// Ohjaa kaikki muut paitsi /api-pyynnöt React-sovellukselle
-app.get(/^(?!\/api).*/, (req, res) => {
-  res.sendFile(path.join(frontendDist, 'index.html'));
 });
