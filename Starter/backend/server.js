@@ -47,3 +47,10 @@ connectToDatabase().then(() => {
     console.log('  /api/posts -> routes/posts.js');
   });
 });
+const frontendDist = path.join(__dirname, '..', 'frontend', 'dist');
+app.use(express.static(frontendDist));
+
+// Ohjaa kaikki muut paitsi /api-pyynnöt React-sovellukselle
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(frontendDist, 'index.html'));
+});
